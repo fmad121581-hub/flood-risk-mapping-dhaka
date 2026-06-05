@@ -113,7 +113,7 @@ The analysis is structured across three phases following the UNDRR framework:
 ```bash
 pip install pandas geopandas rasterio numpy matplotlib scipy contextily matplotlib-scalebar
 ```
-
+Before running any script, update the ROOT or BASE path at the top of each file to match your local project folder.
 ### Run order
 ```bash
 python scripts/phase1_rainfall_analysis.py
