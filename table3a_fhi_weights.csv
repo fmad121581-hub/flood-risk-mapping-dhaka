@@ -1,0 +1,5 @@
+Component,Weight,Rationale
+TWI,0.35,Primary indicator of water accumulation potential
+Elevation,0.3,Low elevation = higher inundation susceptibility
+Slope,0.2,Flat areas retain water longer
+SCS Curve Number,0.15,Land-cover effect on runoff generation

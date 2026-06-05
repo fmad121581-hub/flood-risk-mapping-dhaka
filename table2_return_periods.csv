@@ -1,0 +1,7 @@
+Return period (yr),Exceedance prob.,Peak monthly RF (mm),Note
+2,1/2,486.0,Frequent event
+5,1/5,618.0,Moderate event
+10,1/10,705.0,Design standard (Phase 2)
+25,1/25,815.0,Design standard (Phase 2)
+50,1/50,897.0,Design standard (Phase 2)
+100,1/100,978.0,Extreme event

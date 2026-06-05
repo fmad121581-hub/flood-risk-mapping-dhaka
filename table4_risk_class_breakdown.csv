@@ -1,0 +1,7 @@
+Risk class,Class value,Area (km²),Population,% population,Pop density (ppl/km²)
+No Risk,0,78,46896,0.4,601.0
+Low,1,269,269519,2.2,1002.0
+Medium,2,269,497344,4.0,1849.0
+High,3,269,1074155,8.6,3993.0
+Very High,4,269,10620356,84.9,39481.0
+Total,—,1154,12508270,100.1,10839.0

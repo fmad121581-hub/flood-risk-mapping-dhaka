@@ -1,0 +1,6 @@
+Hazard class,Class value,Area (km²),% of area,FHI range
+Low,1,~14,1.4,<0.25
+Medium,2,~282,29.4,0.25–0.50
+High,3,~388,40.4,0.50–0.75
+Very High,4,~256,26.6,>0.75
+Total,—,~960,100.0,—
