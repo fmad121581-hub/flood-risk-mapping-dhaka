@@ -1,0 +1,8 @@
+scenario,Low,Medium,High,Very High,pct_diff_VeryHigh_vs_baseline
+Baseline (report),1.4,30.05,41.35,27.2,0.0
+TWI-heavy,4.26,29.2,36.05,30.48,3.28
+Elevation-heavy,3.34,34.14,39.08,23.44,-3.76
+Slope-heavy,0.58,21.38,48.09,29.95,2.75
+CN/urban-heavy,3.38,23.94,44.01,28.68,1.48
+Equal weights,1.26,20.75,46.67,31.33,4.13
+No-LULC fallback (phase2 code path),3.23,28.53,38.14,30.1,2.9

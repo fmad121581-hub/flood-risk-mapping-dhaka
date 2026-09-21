@@ -1,0 +1,5 @@
+group,n_matched,mean_risk_percentile,median_risk_percentile
+High vulnerability (paper),5,84.4,87.6
+Low vulnerability (paper),3,53.9,52.0
+"Very low vulnerability (paper, peripheral unions)",5,36.4,36.0
+"Low vulnerability (paper, peripheral unions)",14,51.5,50.4

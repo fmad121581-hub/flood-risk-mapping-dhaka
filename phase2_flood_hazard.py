@@ -148,7 +148,7 @@ def fill_sinks_simple(dem_array, nodata=-9999):
     """
     Simple iterative sink filling (Planchon-Darboux approximation).
     For production use, replace with SAGA 'Fill Sinks (Wang & Liu)' in QGIS.
-    Sets each cell ≥ its lowest neighbor, iterating until stable.
+    Sets each cell >= its lowest neighbor, iterating until stable.
     """
     valid = dem_array != nodata
     filled = dem_array.copy().astype(float)
@@ -156,6 +156,20 @@ def fill_sinks_simple(dem_array, nodata=-9999):
     # Initialise filled surface as max observed elevation
     surface = np.full_like(filled, np.nanmax(filled))
     surface[~valid] = np.nan
+
+    # FIX: Planchon-Darboux needs a drainage boundary to relax down from.
+    # Without seeding it, a uniform "max everywhere" surface never changes:
+    # min(surface, neighbor+eps) on a flat surface just returns the same
+    # flat surface, and max(that, raw_dem) still equals the max since the
+    # max element is, by definition, >= every raw DEM value. The result was
+    # a completely flat output (found via a corrupted DEM elevation summary
+    # stat that came out as mean == min == max). Seed the domain edge and
+    # the edge of the valid-data mask with the raw DEM value so water has
+    # somewhere to drain toward, then relax the interior down to it.
+    from scipy.ndimage import binary_erosion
+    interior = binary_erosion(valid, structure=np.ones((3, 3)), border_value=0)
+    boundary = valid & ~interior
+    surface[boundary] = filled[boundary]
 
     max_iter = 500
     for iteration in range(max_iter):
@@ -182,7 +196,9 @@ def compute_slope_degrees(dem_array, cellsize_m, nodata=-9999):
     Compute slope in degrees using Horn's method (same as QGIS/GDAL).
     cellsize_m: pixel size in metres.
     """
-    valid_mask = dem_array != nodata
+    # NaN can't be compared with != (NaN != NaN is always True), so handle
+    # a NaN nodata sentinel separately from a numeric one (e.g. -9999)
+    valid_mask = ~np.isnan(dem_array) if np.isnan(nodata) else dem_array != nodata
     z = dem_array.astype(float)
     z[~valid_mask] = np.nan
 
@@ -395,12 +411,27 @@ dem_filled = dem_filled.astype(float)
 dem_filled[dem_filled == -9999] = np.nan
 
 dem_filled_path = os.path.join(OUT, "dem_filled.tif")
-if not os.path.exists(dem_filled_path):
-    save_raster_like(dem_filled.astype(np.float32), dem_clipped_path,
-                     dem_filled_path, dtype="float32", nodata=-9999)
-    print("  Saved Python sink-filled DEM (use GRASS r.fill.dir for better results)")
+save_raster_like(dem_filled.astype(np.float32), dem_clipped_path,
+                 dem_filled_path, dtype="float32", nodata=-9999)
+
+# KNOWN LIMITATION: fill_sinks_simple() uses np.roll for the 8-neighbour
+# relaxation, which wraps around the array edges (treats the grid as a
+# torus). On an irregularly-clipped domain like the Dhaka boundary, that
+# links unrelated far edges together and the whole surface collapses toward
+# a single near-uniform elevation instead of a properly filled DEM -- do
+# NOT treat dem_filled.tif as validated output. It is not used anywhere
+# else in this script (slope, TWI and elevation classification all use
+# dem_raw), so this does not affect the hazard index. For a trustworthy
+# filled DEM, run GRASS r.fill.dir or SAGA "Fill Sinks (Wang & Liu)" in
+# QGIS on dem_clipped.tif and save the result as dem_filled.tif.
+_dem_filled_valid = dem_filled[~np.isnan(dem_filled)]
+_dem_filled_unique = np.unique(np.round(_dem_filled_valid, 3))
+if len(_dem_filled_unique) < 10:
+    print("  WARNING: dem_filled.tif looks degenerate "
+          f"({len(_dem_filled_unique)} unique elevation value(s)) -- "
+          "known limitation, see comment above. Not used elsewhere in this script.")
 else:
-    print("  Using existing dem_filled.tif (GRASS r.fill.dir output)")
+    print("  Saved Python sink-filled DEM (use GRASS r.fill.dir for better results)")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 4. SLOPE CALCULATION
@@ -421,7 +452,7 @@ SLOPE_BREAKS = [1, 3, 6, 90]
 
 slope_classified = classify_raster(slope_deg, SLOPE_BREAKS, nodata=dem_nodata)
 
-valid_slope = slope_deg[slope_deg != dem_nodata]
+valid_slope = slope_deg[~np.isnan(slope_deg)]  # FIX: slope_deg's nodata sentinel is NaN, not dem_nodata
 print(f"  Slope range: {valid_slope.min():.2f}° – {valid_slope.max():.2f}°")
 print(f"  Mean slope : {valid_slope.mean():.3f}° (confirms deltaic flatness)")
 print(f"  % pixels <1°: {(valid_slope < 1).mean()*100:.1f}%")
@@ -462,7 +493,7 @@ flow_accum = np.ones_like(twi)
 # Class 4 (Very High): TWI > 10  — valley bottoms, channels, wetlands
 TWI_BREAKS = [6, 8, 10, 99]
 
-valid_twi = twi[twi != dem_nodata]
+valid_twi = twi[~np.isnan(twi)]  # FIX: twi's nodata sentinel is NaN, not dem_nodata
 print(f"  TWI range : {np.nanmin(valid_twi):.2f} – {np.nanmax(valid_twi):.2f}")
 print(f"  Mean TWI  : {np.nanmean(valid_twi):.2f}")
 
@@ -715,9 +746,9 @@ df_scenarios = pd.DataFrame(scenario_rows)
 # 10. SUMMARY STATISTICS
 # ─────────────────────────────────────────────────────────────────────────────
 
-valid_dem   = dem_filled[dem_filled != dem_nodata]
-valid_slope2 = slope_deg[slope_deg != dem_nodata]
-valid_twi2   = twi[twi != dem_nodata]
+valid_dem   = dem_raw[~np.isnan(dem_raw)]          # NOTE: use dem_raw, not dem_filled -- see dem_filled.tif limitation warning above
+valid_slope2 = slope_deg[~np.isnan(slope_deg)]     # FIX: was comparing to dem_nodata (-32767) but slope_deg's nodata sentinel is NaN
+valid_twi2   = twi[~np.isnan(twi)]                 # FIX: same, for consistency (nanmean/nanmax already masked this one)
 
 summary = {
     "Parameter": [
@@ -1036,8 +1067,8 @@ ax2.legend(fontsize=8, labelcolor="white", facecolor="#0a0a1a",
 # 6c: TWI vs Elevation scatter (sampled)
 ax3 = fig.add_subplot(gs[0, 2])
 ax3.set_facecolor("#0f3460")
-valid_mask2 = (dem_filled != dem_nodata) & (~np.isnan(twi))
-dem_flat  = dem_filled[valid_mask2].ravel()
+valid_mask2 = (~np.isnan(dem_raw)) & (~np.isnan(twi))  # NOTE: use dem_raw -- dem_filled.tif has a known degeneracy, see warning above
+dem_flat  = dem_raw[valid_mask2].ravel()
 twi_flat  = twi[valid_mask2].ravel()
 hc_flat   = hazard_class[valid_mask2].ravel()
 

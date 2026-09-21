@@ -1,0 +1,2 @@
+n_draws,VeryHigh_pct_baseline,VeryHigh_pct_mean,VeryHigh_pct_std,VeryHigh_pct_min,VeryHigh_pct_max,ward_rank_spearman_mean,ward_rank_spearman_min,ward_rank_spearman_p5
+120,27.2,27.94,3.63,21.41,39.71,0.8923,0.3311,0.5508

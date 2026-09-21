@@ -24,7 +24,7 @@ from rasterio.mask import mask as rmask
 import contextily as ctx
 
 # ── Project root (adjust if needed) ──────────────────────────
-ROOT = r"C:/Users/user/OneDrive/Must"
+ROOT = r"C:/Users/user/OneDrive/Projects/Flood_risk"
 
 # ── Input paths ──────────────────────────────────────────────
 BOUNDARY_UTM   = os.path.join(ROOT, "dhaka_boundary_utm.shp")
@@ -263,7 +263,7 @@ im = ax.imshow(
 )
 
 # Overlay ward boundaries
-wards_utm = gpd.read_file(WARDS)
+wards_utm = gpd.read_file(WARDS).to_crs(epsg=32646)  # FIX: reproject to UTM 46N
 wards_utm.plot(ax=ax, facecolor="none", edgecolor="#333333",
                linewidth=0.25, zorder=3)
 boundary_utm = gpd.read_file(BOUNDARY_UTM)
@@ -319,7 +319,7 @@ im = ax.imshow(
     zorder=2,
 )
 
-wards_utm = gpd.read_file(WARDS)
+wards_utm = gpd.read_file(WARDS).to_crs(epsg=32646)  # FIX: reproject to UTM 46N
 wards_utm.plot(ax=ax, facecolor="none", edgecolor="#333333",
                linewidth=0.25, zorder=3)
 boundary_utm = gpd.read_file(BOUNDARY_UTM)

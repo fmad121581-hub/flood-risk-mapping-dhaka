@@ -18,8 +18,8 @@ warnings.filterwarnings("ignore")
 
 # %% ── 1. Paths ───────────────────────────────────────────────────────────────
 # Run from flood_risk_dhaka/ as the working directory in VS Code
-RAW_CSV   = "C:/Users/user/OneDrive/Must/data/raw/rainfall/rainfall_dhaka_monthly_2004_2023.csv"
-OUT_DIR   = "C:/Users/user/OneDrive/Must/data/output/phase1"
+RAW_CSV   = "C:/Users/user/OneDrive/Projects/Flood_risk/data/raw/rainfall/rainfall_dhaka_monthly_2004_2023.csv"
+OUT_DIR   = "C:/Users/user/OneDrive/Projects/Flood_risk/data/output/phase1"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 MONTHS      = ["Jan","Feb","Mar","Apr","May","Jun",

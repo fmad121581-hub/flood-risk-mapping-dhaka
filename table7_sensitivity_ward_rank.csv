@@ -1,0 +1,8 @@
+scenario,spearman_rho_vs_baseline,top10_wards_retained_of_10
+Baseline (report),1.0,10
+TWI-heavy,0.9931,9
+Elevation-heavy,0.977,9
+Slope-heavy,0.9888,9
+CN/urban-heavy,0.6906,5
+Equal weights,0.9265,8
+No-LULC fallback (phase2 code path),0.9336,7

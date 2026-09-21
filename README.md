@@ -147,3 +147,13 @@ Bangladesh University of Engineering and Technology (BUET)
 - WorldPop (2020). Global High Resolution Population Denominators Project. University of Southampton.
 - NASA POWER (2023). MERRA-2 Reanalysis. NASA Langley Research Center.
 - USDA (1986). Technical Release 55: Urban Hydrology for Small Watersheds.
+
+## Sensitivity Analysis & Validation (added)
+
+Two additional analyses strengthen the FHI weighting and the ward risk ranking above:
+
+- **`phase2b_sensitivity_analysis.py`** — tests the Flood Hazard Index against 7 alternative weighting scenarios plus a 120-draw Monte Carlo sweep. The ward ranking is stable under most re-weightings (Spearman ρ ≥ 0.93 vs baseline) but noticeably more sensitive to the Curve Number (land cover) weight specifically (ρ = 0.69, only 5/10 top wards retained). See `table6_sensitivity_scenarios.csv`, `table7_sensitivity_ward_rank.csv`, `table8_sensitivity_montecarlo_summary.csv`, `fig6_sensitivity_hazard_class.png`, `fig7_sensitivity_montecarlo.png`.
+
+- **`phase3b_validation.py`** — cross-checks the ward risk ranking against an independent, peer-reviewed source: Alam, R., Quayyum, Z., Moulds, S., Radia, M.A., Sara, H.H., Hasan, M.T., & Butler, A. (2023). "Dhaka city water logging hazards: area identification and vulnerability assessment through GIS-remote sensing techniques." *Environmental Monitoring and Assessment*, 195(5), 543. https://doi.org/10.1007/s10661-023-11106-y. Wards that paper classifies as high vulnerability land at the 84th percentile of this model's own risk ranking on average; wards it classifies as very-low vulnerability land at the 36th — independent confirmation the ranking tracks something real. See `table9_validation_matches.csv`, `table10_validation_summary.csv`, `fig8_validation_percentiles.png`.
+
+Full write-up, including a code audit of Phases 1–4 (two real bugs found and fixed — a stale hardcoded path and a NaN-handling bug that had been silently blanking the DEM/slope summary statistics) and a discussion of what "risk" vs "hazard" means for interpreting the ward ranking (see the Demra case), is in [`docs/methodology_addendum.md`](docs/methodology_addendum.md).
