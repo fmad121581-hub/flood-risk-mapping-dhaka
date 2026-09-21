@@ -42,8 +42,7 @@ flood-risk-mapping-dhaka/
 │   ├── maps/                            # 5 cartographic maps (PNG)
 │   ├── figures/                         # 5 analytical figures (PNG)
 │   └── tables/                          # 6 summary tables (CSV)
-└── report/
-    └── Flood_Risk_Report_Dhaka_FINAL.pdf  # Full written report
+└── Flood_Risk_Report_Dhaka_REVISED.docx  # Full written report (revised; see docs/methodology_addendum.md)
 ```
 
 ---
